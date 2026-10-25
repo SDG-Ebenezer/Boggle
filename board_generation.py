@@ -105,6 +105,11 @@ class BoggleBoard:
         #print("Path: " + path.ljust(50) + " || Word?: " + self.combinations[path].ljust(16) + " || ITERATIONS: " + str(self.brute_force_iterations))
         #print(self.combinations)
 
+        # If there is no word in the English dictionary that start with this, why keep going?
+        if len([word for word in all_words if word.lower().startsWith(self.combinations[path])]) == 0:
+            print("No English word starts with: " + self.combinations[path])
+            return
+
         #CHECK WORD!
         potential_word = self.combinations[path]
         if check_word(potential_word):
