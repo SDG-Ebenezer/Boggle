@@ -1,9 +1,23 @@
 """
 AUTHOR: Ebenezer Jiang
-DESCRIPTION: Generates and manages Boggle boards, including finding words and storing combinations.
-TO-DO:
-- Optimize the brute force search for finding words.
-- The current version had to be dumbed down to a 3x3 grid to manage computational complexity...
+
+DESCRIPTION: 
+    Generates and manages Boggle boards, including finding words and storing combinations. 
+
+HOW IT WORKS:
+    The BoggleBoard class represents a Boggle board and provides methods to generate the board, print it, 
+    and store combinations of letters along paths. The combinations dictionary keeps track of all possible paths 
+    and their corresponding words, while the "words_found" list stores all valid words found on the board. 
+    The "brute_force_iterations" counter tracks the number of iterations performed during brute force search.
+
+    The program uses recursion to explore all possible paths on the Boggle board, storing the combinations 
+    and checking for valid words. Valid words are stored in the "words_found" list.
+
+DISCLAIMER:
+  * The maximum Boggle Board size is 9, otherwise the logic fails, since indexes and paths are stored on a 
+    2-digit base-10 system (e.g. the position "01" represents the 0th row and the 1st column), thus the max
+    position is "99". This is fixable if one updated the code to expend paths to a four-digit position string
+    (10th row + 24th column = pos "1024")
 """
 
 import string
@@ -14,16 +28,30 @@ import nltk
 all_letters = list(string.ascii_lowercase)
 all_vowels = ["a", "e", "i", "o", "u"] # lower
 
+# Download the words corpus from NLTK if it hasn't been downloaded already.
 nltk.download('words')
+# Load the words corpus into a list for quick lookup.
 all_words = nltk.corpus.words.words()
 def check_word(word) -> bool:
     # check if the word is in the list of all words
     return word.lower() in all_words 
 
 # Default size
-BOARD_SIZE = 3
+BOARD_SIZE = 5 # Maximum Boggle Board Size is 9, otherwise logic fails
 
-# Class representing a Boggle board
+# Class representing a Boggle board.
+# @Attributes:
+#     (int) size : The dimension of the board (size x size).
+#     (dict) board : A dictionary representing the board, with keys as "row-col" and values as letter characters (e.g., "00", "01").
+#     (dict) combinations : A dictionary storing all possible paths and their corresponding words.
+#     (list) words_found : A list of all valid words found on the board.
+#     (int) brute_force_iterations : The number of iterations performed during brute force search.
+# @Methods:
+#     pick_letters(weight_vowels: bool = True) -> str: Returns a random letter, optionally weighted towards vowels.
+#     generate() -> dict: Generates a random Boggle board with a size of "self.size" x "self.size"
+#     print_board() -> None: Prints the current Boggle board.
+#     store_combinations(path: str) -> None: Stores the combination of letters along the given path.
+
 class BoggleBoard:
     def __init__(self, size = BOARD_SIZE, inputed_board = None):
         self.size = size # boards will have dimensions of "size" x "size"
@@ -44,6 +72,8 @@ class BoggleBoard:
         self.brute_force_iterations = 0
 
     # Return a random letter (to put in the boggle board)
+    # @param weight_vowels (bool): Whether or not to weight the vowels
+    # @return str: A randomly selected letter
     def pick_letters(self, weight_vowels = True) -> str:
         if weight_vowels and random.randint(0, 100) <= 15: # give a higher chance of a vowel
             return all_vowels[random.randint(0, len(all_vowels) - 1)]
@@ -51,7 +81,8 @@ class BoggleBoard:
             return all_letters[random.randint(0, len(all_letters) - 1)]
 
     # Return a randomly board
-    def generate(self) -> {}:
+    # @return dict: A dictionary representing the generated Boggle board with a size of "self.size" x "self.size"
+    def generate(self) -> dict:
         # generate a random boggle board
         board = {}
         for i in range(self.size): # row
@@ -66,13 +97,16 @@ class BoggleBoard:
         return board
 
     # Print this boggle board
+    # @return None
     def print_board(self) -> None:
         for i in range(self.size): # row
             for j in range(self.size): # column
                 print(self.board[f"{i}{j}"], end=" ")
             print()
 
-    #
+    # Stores the combination of letters along the given path in the Boggle board.
+    # @param path (str): A comma-separated string representing the path of indices on the board (e.g "00,01,02,12")
+    # @return None
     def store_combinations(self, path:str) -> None:
         self.brute_force_iterations += 1
         if path == None:
@@ -116,7 +150,7 @@ class BoggleBoard:
         potential_word = self.combinations[path]
         if check_word(potential_word):
             self.words_found.append(potential_word)
-            print("Word found! " + potential_word.ljust(10) + " | PATH: " + path.ljust(10) + " | ITERATION: #" + str(self.brute_force_iterations))#| PATHS_SEARCHED: " + str(self.combinations.keys()))
+            print("Word found! " + potential_word.ljust(15) + " | PATH: " + path.ljust(20) + " | ITERATION: #" + str(self.brute_force_iterations))#| PATHS_SEARCHED: " + str(self.combinations.keys()))
        
         # Check all surroundings!
         # (-1, -1) (0, -1) (+1,-1)
@@ -132,10 +166,13 @@ class BoggleBoard:
 
         self.new_path(path_as_list, -1, 1)
         self.new_path(path_as_list, 0, 1)
-        self.new_path(path_as_list, 1, 1)
-        
-        
+        self.new_path(path_as_list, 1, 1)       
 
+    # Generates a new path by adding a neighboring cell to the existing path.
+    # @param old_path_list (list): The list-form of the current path (e.g. Path = "01,02,21" -> ["01", "02", "21"])
+    # @param horz_inc (int): The horizontal increment to the last cell (-1, 0, +1)
+    # @param vert_inc (int): The  vertical  increment to the last cell (-1, 0, +1)
+    # @return None
     def new_path(self, old_path_list:list, horz_inc:int, vert_inc:int) -> None:
         # old_path_list should be like ["00", "10", "11"]
         last_index = old_path_list[-1] # STRING! last added index
@@ -164,34 +201,32 @@ class BoggleBoard:
 
         # You passed!
         self.store_combinations(new_path)
-
-"""set_board = {
-    '00': 'a', '01': 'b', '02': 'c', '03': 'd', 
-    '10': 'e', '11': 'f', '12': 'g', '13': 'h',
-    '20': 'i', '21': 'j', '22': 'k', '23': 'l', 
-    '30': 'm', '31': 'n', '32': 'o', '33': 'p'
-} # manually defined 4x4 boggle board"""
-
-set_board = {
-    '00': 'a', '01': 'l', '02': 'l', 
-    '10': 'e', '11': 'e', '12': 'o',
-    '20': 's', '21': 'h', '22': 'i'
-} # manually defined 3x3 boggle board
-
-def __main__():
-    board = BoggleBoard(5)
-    board.print_board()
     
-    for path in board.board.keys():
-        board.store_combinations(path)
+    # Solves the Boggle board by exploring all possible paths and storing valid words.
+    # After solving, the method prints out the board as well as all the valid Boggle words (length <= 3).
+    # @return None
+    def solve(self) -> None:
+        for path in self.board.keys():
+            self.store_combinations(path)
+    
+        print("\n\n BOARD: ")
+        self.print_board()
+    
+        print("\n ALL  VALID  BOGGLE  WORDS (length >= 3): ")
+        print(", ".join([i for i in set(self.words_found) if len(i) >= 3])) # Print out all words
+        print("\n\n\n")
 
 
-    print("\n\n BOARD: ")
+# # # # #
+def __main__():
+    # Initialize new BoggleBoard with standard size of 5 x 5
+    board = BoggleBoard(5)
+    
+    print("BOGGLE BOARD:")
     board.print_board()
 
-    print("\n ALL  VALID  BOGGLE  WORDS (length >= 3): ")
-    print(", ".join([i for i in set(board.words_found) if len(i) >= 3])) # Print out all words
-    print("\n\n\n")
+    input("\n\nPress [ENTER] to compute answers...")
+    board.solve()
 
 if __name__ == "__main__":
     __main__()
