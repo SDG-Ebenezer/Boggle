@@ -109,7 +109,7 @@ class BoggleBoard:
         potential_word = self.combinations[path]
         if check_word(potential_word):
             self.words_found.append(potential_word)
-            print("Word found! " + potential_word + " | PATH: " + path + " | PATHS_SEARCHED: " + str(self.combinations.keys()))
+            print("Word found! " + potential_word + " | PATH: " + path)
             print("All words: " + str(self.words_found))
     
        
