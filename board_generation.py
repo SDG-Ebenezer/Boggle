@@ -46,7 +46,7 @@ class BoggleBoard:
 
     # return a random letter (to put in the boggle board)
     def pick_letters(self, weight_vowels = True) -> str:
-        if weight_vowels and random.randint(0, 5) == 5: # give a higher chance of a vowel
+        if weight_vowels and random.randint(0, 100) <= 15: # give a higher chance of a vowel
             return all_vowels[random.randint(0, len(all_vowels) - 1)]
         else:
             return all_letters[random.randint(0, len(all_letters) - 1)]
@@ -76,11 +76,11 @@ class BoggleBoard:
     #
     def store_combinations(self, path:str) -> None:
         self.brute_force_iterations += 1
-        #time.sleep(0.1)
+        #time.sleep(0.2)
         if path == None:
             print("Invalid path. Abort... NONE TYPE ")
             return
-
+        
         path_as_list = path.split(",")
 
         last_index = path_as_list[-1] # STRING! last added index
@@ -102,18 +102,21 @@ class BoggleBoard:
         else:
             return
 
-        #print("Paths from start: " + str(self.paths_from_start))
-        print("Path: " + path.ljust(50) + " || Word?: " + self.combinations[path].ljust(16) + " || ITERATIONS: " + str(self.brute_force_iterations))
+        #print("Path: " + path.ljust(50) + " || Word?: " + self.combinations[path].ljust(16) + " || ITERATIONS: " + str(self.brute_force_iterations))
+        #print(self.combinations)
 
         #CHECK WORD!
         potential_word = self.combinations[path]
         if check_word(potential_word):
             self.words_found.append(potential_word)
-            print("Word found! " + potential_word + " | PATH: " + path + " | PATHS_SEARCHED: " + str(self.combinations.keys()))
-            print("All words: " + str(self.words_found))
+            print("Word found! " + potential_word.ljust(10) + " | PATH: " + path.ljust(10) + " | ITERATION: #" + str(self.brute_force_iterations))#| PATHS_SEARCHED: " + str(self.combinations.keys()))
+            #print("All words: " + str(self.words_found))
     
        
         # Check all surroundings!
+        # (-1, -1) (0, -1) (+1,-1)
+        # (-1,  0) CURRENT (+1, 0)
+        # (-1, +1) (0, +1) (+1 +1)
         self.new_path(path_as_list, -1, -1)
         self.new_path(path_as_list, 0, -1)
         self.new_path(path_as_list, 1, -1)
@@ -142,16 +145,16 @@ class BoggleBoard:
             #print("Out of bounds. Abort... " + new_path)
             return
 
-        # # #
-        # Create new path [00, 01, 02] + JUST ADDED "03" (new_last_index)
-        new_path = ",".join(old_path_list) + "," + new_last_index
-
         # If you already visited here, you can't visit again...
         if new_last_index in old_path_list:
             #print("Already visited this index. Abort...", new_last_index, old_path_list)
             return
+
+        # # #
+        # Create new path [00, 01, 02] + JUST ADDED "03" (new_last_index)
+        new_path = ",".join(old_path_list) + "," + new_last_index
         # If you already tried this path, you can't visit again...
-        elif new_path in self.combinations.keys():
+        if new_path in self.combinations.keys():
             return
 
         # You passed!
@@ -170,17 +173,21 @@ set_board = {
     '20': 's', '21': 'h', '22': 'i'
 } # manually defined 3x3 boggle board
 
-
 def __main__():
-    board = BoggleBoard(3)
+    board = BoggleBoard(4)
     board.print_board()
     
     for path in board.board.keys():
         board.store_combinations(path)
 
-    print(board.words_found)
+    for i  in set(board.words_found):
+        if len(i) >= 3:
+            print(f"{i}, ", end="")
+    print()
 
     board.print_board()
+
+    print(len(all_words))
 
 if __name__ == "__main__":
     __main__()
