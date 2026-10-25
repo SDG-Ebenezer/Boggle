@@ -50,7 +50,7 @@ class BoggleBoard:
                 board[f"{i}{j}"] = self.pick_letters(True)
         return board
 
-    # print this boggle board
+    # #print this boggle board
     def print_board(self) -> None:
         for i in range(self.size): # row
             for j in range(self.size): # column
@@ -59,13 +59,13 @@ class BoggleBoard:
 
     #
     def store_combinations(self, path:str) -> None:
-        time.sleep(0.1)
+        #time.sleep(0.1)
         if path == None:
-            print("Invalid path. Abort... NONE TYPE ")
+            #print("Invalid path. Abort... NONE TYPE ")
             return
 
         path_as_list = path.split(",")
-        #print(path_as_list)
+        ##print(path_as_list)
 
         last_index = path_as_list[-1] # STRING! last added index
 
@@ -83,10 +83,10 @@ class BoggleBoard:
 
             self.combinations[path] = previous_combo + last_term
         else:
-            print("Abort...")
+            #print("Abort...")
             return
 
-        print("Current combination: " + str(self.combinations[path]))
+        #print("Current combination: " + str(self.combinations[path]))
 
         #CHECK WORD!
         potential_word = self.combinations[path]
@@ -109,13 +109,13 @@ class BoggleBoard:
         self.new_path(path_as_list, 0, 1)
         self.new_path(path_as_list, 1, 1)
         
-        #print(path)
+        ##print(path)
 
     def new_path(self, old_path_list:list, horz_inc:int, vert_inc:int) -> None:
         # old_path_list should be like ["00", "10", "11"]
         last_index = old_path_list[-1] # STRING! last added index
 
-        #print("LI: " + last_index)
+        ##print("LI: " + last_index)
 
         # Since last_index is stored as a string (e.g. "21"), we must separate into integers to update it:
         # ...to update rows:
@@ -123,7 +123,7 @@ class BoggleBoard:
         # ...to update columns:
         new_col_num = str(int(last_index[1]) + vert_inc)
 
-        #print(f"NR: {new_row_num} || NC: {new_col_num}")
+        ##print(f"NR: {new_row_num} || NC: {new_col_num}")
 
         new_last_index = f"{new_row_num}{new_col_num}"
 
@@ -135,7 +135,7 @@ class BoggleBoard:
 
         # if the last (added) index does not exist on the board, forget it...
         if new_last_index not in self.board.keys():
-            print("Out of bounds. Abort... " + new_path)
+            #print("Out of bounds. Abort... " + new_path)
             return
         # If you already tried this path, you can't visit again...
         elif new_path in self.combinations.keys():
@@ -145,18 +145,18 @@ class BoggleBoard:
         self.store_combinations(new_path)
 
 set_board = {
-    '00': 'a', '01': 'b', '02': 'c', '03': 'd', 
-    '10': 'e', '11': 'f', '12': 'g', '13': 'h',
-    '20': 'a', '21': 'b', '22': 'c', '23': 'd', 
-    '30': 'e', '31': 'f', '32': 'g', '33': 'h'
+    '00': 'e', '01': 'l', '02': 'l', '03': 'o', 
+    '10': 'l', '11': 'h', '12': 'e', '13': 'l',
+    '20': 'l', '21': 'b', '22': 'o', '23': 'l', 
+    '30': 'o', '31': 'f', '32': 'g', '33': 'h'
 } # manually defined 4x4 boggle board
 
 
 def __main__():
-    print(all_words)
-    #board = BoggleBoard(BOARD_SIZE, set_board)
+    board = BoggleBoard(BOARD_SIZE, set_board)
+    board.store_combinations("11")
 
-    #board.store_combinations("00")
+    print(board.words_found)
 
 if __name__ == "__main__":
     __main__()
