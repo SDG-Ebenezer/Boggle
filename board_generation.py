@@ -8,7 +8,6 @@ TO-DO:
 
 import string
 import random
-import time
 
 import nltk
 
@@ -21,10 +20,10 @@ def check_word(word) -> bool:
     # check if the word is in the list of all words
     return word.lower() in all_words 
 
-# default size
+# Default size
 BOARD_SIZE = 3
 
-# class representing a Boggle board
+# Class representing a Boggle board
 class BoggleBoard:
     def __init__(self, size = BOARD_SIZE, inputed_board = None):
         self.size = size # boards will have dimensions of "size" x "size"
@@ -44,14 +43,14 @@ class BoggleBoard:
         # Count the number of iterations
         self.brute_force_iterations = 0
 
-    # return a random letter (to put in the boggle board)
+    # Return a random letter (to put in the boggle board)
     def pick_letters(self, weight_vowels = True) -> str:
         if weight_vowels and random.randint(0, 100) <= 15: # give a higher chance of a vowel
             return all_vowels[random.randint(0, len(all_vowels) - 1)]
         else:
             return all_letters[random.randint(0, len(all_letters) - 1)]
 
-    # return a randomly board
+    # Return a randomly board
     def generate(self) -> {}:
         # generate a random boggle board
         board = {}
@@ -66,7 +65,7 @@ class BoggleBoard:
                 board[f"{i}{j}"] = self.pick_letters(True)
         return board
 
-    # #print this boggle board
+    # Print this boggle board
     def print_board(self) -> None:
         for i in range(self.size): # row
             for j in range(self.size): # column
@@ -76,7 +75,6 @@ class BoggleBoard:
     #
     def store_combinations(self, path:str) -> None:
         self.brute_force_iterations += 1
-        #time.sleep(0.2)
         if path == None:
             print("Invalid path. Abort... NONE TYPE ")
             return
@@ -102,28 +100,23 @@ class BoggleBoard:
         else:
             return
 
+        # DEBUG
         #print("Path: " + path.ljust(50) + " || Word?: " + self.combinations[path].ljust(16) + " || ITERATIONS: " + str(self.brute_force_iterations))
-        #print(self.combinations)
-
 
 
         ### PREFIX CHECKER ###
         # If there is no word in the English dictionary that start with this, why keep going?
         if len([word for word in all_words if word.lower().startswith(self.combinations[path])]) == 0:
+            # DEBUG
             #print("No English word starts with: " + self.combinations[path])
             return
 
 
-
-
         #CHECK WORD!
         potential_word = self.combinations[path]
-        #print("ITERATION: " + str(self.brute_force_iterations))
         if check_word(potential_word):
             self.words_found.append(potential_word)
             print("Word found! " + potential_word.ljust(10) + " | PATH: " + path.ljust(10) + " | ITERATION: #" + str(self.brute_force_iterations))#| PATHS_SEARCHED: " + str(self.combinations.keys()))
-            #print("All words: " + str(self.words_found))
-    
        
         # Check all surroundings!
         # (-1, -1) (0, -1) (+1,-1)
@@ -141,7 +134,7 @@ class BoggleBoard:
         self.new_path(path_as_list, 0, 1)
         self.new_path(path_as_list, 1, 1)
         
-        ##print(path)
+        
 
     def new_path(self, old_path_list:list, horz_inc:int, vert_inc:int) -> None:
         # old_path_list should be like ["00", "10", "11"]
@@ -192,14 +185,15 @@ def __main__():
     for path in board.board.keys():
         board.store_combinations(path)
 
+
+    print("\n\n BOARD: ")
+    board.print_board()
+
+    print(" ALL  VALID  BOGGLE  WORDS: ")
     for i  in set(board.words_found):
         if len(i) >= 3:
             print(f"{i}, ", end="")
-    print()
-
-    board.print_board()
-
-    print(len(all_words))
+    print("\n\n\n")
 
 if __name__ == "__main__":
     __main__()
