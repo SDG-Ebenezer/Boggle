@@ -189,10 +189,8 @@ def __main__():
     print("\n\n BOARD: ")
     board.print_board()
 
-    print(" ALL  VALID  BOGGLE  WORDS: ")
-    for i  in set(board.words_found):
-        if len(i) >= 3:
-            print(f"{i}, ", end="")
+    print("\n ALL  VALID  BOGGLE  WORDS (length >= 3): ")
+    print(", ".join([i for i in set(board.words_found) if len(i) >= 3])) # Print out all words
     print("\n\n\n")
 
 if __name__ == "__main__":
