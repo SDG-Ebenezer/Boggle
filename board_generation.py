@@ -118,6 +118,7 @@ class BoggleBoard:
 
         #CHECK WORD!
         potential_word = self.combinations[path]
+        #print("ITERATION: " + str(self.brute_force_iterations))
         if check_word(potential_word):
             self.words_found.append(potential_word)
             print("Word found! " + potential_word.ljust(10) + " | PATH: " + path.ljust(10) + " | ITERATION: #" + str(self.brute_force_iterations))#| PATHS_SEARCHED: " + str(self.combinations.keys()))
@@ -185,7 +186,7 @@ set_board = {
 } # manually defined 3x3 boggle board
 
 def __main__():
-    board = BoggleBoard(4)
+    board = BoggleBoard(5)
     board.print_board()
     
     for path in board.board.keys():
