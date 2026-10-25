@@ -6,6 +6,7 @@ import time
 all_letters = list(string.ascii_lowercase)
 all_vowels = ["a", "e", "i", "o", "u"] # lower
 
+nltk.download('words')
 all_words = nltk.corpus.words.words()
 def check_word(word) -> bool:
     # check if the word is in the list of all words
@@ -152,9 +153,10 @@ set_board = {
 
 
 def __main__():
-    board = BoggleBoard(BOARD_SIZE, set_board)
+    print(all_words)
+    #board = BoggleBoard(BOARD_SIZE, set_board)
 
-    board.store_combinations("00")
+    #board.store_combinations("00")
 
 if __name__ == "__main__":
     __main__()
