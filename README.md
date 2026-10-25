@@ -1,10 +1,10 @@
-## **AUTHOR:** 
-Ebenezer Jiang
+#### **AUTHOR:** 
+_Ebenezer Jiang_ 
 
-# **DESCRIPTION:** 
+## **OVERVIEW:** 
 Creates a class for Boggle boards, offering methods to generate, store, and solve the Boggle boards.
 
-# **HOW IT WORKS:**
+## **HOW IT WORKS:**
 - The BoggleBoard class represents a Boggle board and provides methods to generate the board, print it, and store combinations of letters along paths. 
 The `combinations` dictionary keeps track of all possible paths and their corresponding words. Whenever a valid word is found, it is appended to the `words_found` list. 
 
@@ -29,3 +29,6 @@ The `combinations` dictionary keeps track of all possible paths and their corres
 2-digit base-10 system (e.g. the position `"01"` represents the `0th` row and the `1st` column), thus the max
 position is `"99"`. This is fixable if one updated the code to expend paths to a four-digit position string
 (`10th` row + `24th` column = pos `"1024"`)
+
+
+Created on 10/25/2026 @ 16:34 PM 
