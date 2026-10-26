@@ -148,7 +148,7 @@ class BoggleBoard():
             self.check_surroundings([path], self.board[path]) 
 
         ### Self-explanatory...
-        print("\n\n BOARD: ")
+        print("BOARD: ")
         self.print_board()
 
         ### Self-explanatory...
@@ -177,8 +177,8 @@ def __main__():
     # Initialize new BoggleBoard
     board = BoggleBoard(4) 
     
-    print("BOGGLE BOARD:")
-    board.print_board()
+    #print("BOGGLE BOARD:")
+    #board.print_board()
 
     #input("\n\nPress [ENTER] to compute answers...")
     board.solve()
