@@ -45,6 +45,7 @@ TODO:
 
 import string
 import random
+import time
 
 import nltk
 
@@ -55,6 +56,33 @@ all_vowels = ["a", "e", "i", "o", "u"] # lowercase
 nltk.download('words')
 # Load the words corpus into a list for quick lookup.
 all_words = nltk.corpus.words.words() # list
+
+# TRIE SEARCH
+print("[TRIE MAP] Converting all words to TRIE map")
+all_words_prefix_map = {}
+for word in all_words:
+    node = all_words_prefix_map # clone
+    for char in word.lower():
+        node = node.setdefault(char, {})
+    node["*"] = True # Denote if the word is valid
+print(f"[TRIE MAP] Successfully coverted {len(all_words)} words.")
+
+# Check if a substring exists (aka this could potentially be a word)
+# NOTE: This is the logic used in BoogleBoard.store_combinations to determine whether or not to
+#       continue with checking a path or not. If this function returns false, that means given the
+#       current prefix/substring, no matter what future characters you add, there is no possible word 
+#       in the dictionary. Example: "zxxq", if this is the substring/prefix, abort this path...no
+#       English word start with "zxxq"......make sense?
+def prefix_in_dictionary(prefix: str) -> bool:
+    current_level = all_words_prefix_map #
+    for char in prefix.lower(): # lower as a precaution, since the trie map is all lowercase
+        if not char in current_level.keys(): # is this char in this level?
+            return False
+
+        # Passed...so far... >:)
+        current_level = current_level[char]
+        
+    return True
 
 
 # Default size
@@ -165,7 +193,7 @@ class BoggleBoard:
 
         ### PREFIX CHECKER ###
         # If there is no word in the English dictionary that start with this combination, why keep going?
-        if len([word for word in all_words if word.lower().startswith(self.combinations[path])]) == 0:
+        if prefix_in_dictionary(self.combinations[path]) == False:
             # DEBUG
             #print("No English word starts with: " + self.combinations[path])
             return
@@ -235,7 +263,11 @@ class BoggleBoard:
     # Solves the Boggle board by exploring all possible paths and storing valid words.
     # After solving, the method prints out the board as well as all the valid Boggle words (length <= 3).
     # @return None
-    def solve(self) -> None:
+    def solve(self, give_information = True) -> None:
+        # Give runtime 
+        if give_information:
+            start = time.time()
+
         ### Self-explanatory...
         for path in self.board.keys():
             self.store_combinations(path)
@@ -248,6 +280,12 @@ class BoggleBoard:
         print("\n ALL  VALID  BOGGLE  WORDS (length >= 3): ")
         print(", ".join([i for i in set(self.words_found) if len(i) >= 3])) # Print out all words
         print("\n\n\n")
+
+        # Give runtime
+        if give_information:
+            end = time.time()
+            print(f"Runtime: {round(end - start, 2)} seconds")
+            print("Total iterations: ", self.iteration_count)
 
 # preset_board = {
 #     "00": "g", "01": "h", "02": "e", "03": "z", 
@@ -266,11 +304,6 @@ def __main__():
 
     input("\n\nPress [ENTER] to compute answers...")
     board.solve()
-
-    # 5x5 times:
-    # 3391
-    # 5755
-    print("Total iterations:", board.iteration_count)
 
 if __name__ == "__main__":
     __main__()
