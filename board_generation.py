@@ -40,6 +40,7 @@ TODO:
       allowing it to prune unnecessary paths early. But this approach can still be computationally expensive 
       for larger boards, and has to run through all 280k words in "all_words".
     - Implement a trie data structure for more efficient word lookup.
+    - Consider using a better dictionary source for word validation. Corpus.word.word contains many archaic words.
 """
 
 import string
