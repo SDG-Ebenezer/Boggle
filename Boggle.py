@@ -1,6 +1,6 @@
 """
 AUTHOR: Ebenezer Jiang
-Version 1.3.0
+Version 1.3.1
 
 DESCRIPTION: 
     Creates a class for Boggle boards, offering methods to generate, store, and solve the Boggle boards.
@@ -114,7 +114,7 @@ class BoggleBoard():
 
         if new_word in all_words:
             # If it is true, then add this to the "words_found" list
-            print("WORD FOUND - " + new_word)
+            #print("WORD FOUND - " + new_word)
             self.words_found.append(new_word) 
 
         self.check_surroundings(new_path, new_word)
@@ -165,17 +165,17 @@ class BoggleBoard():
             print(f"Runtime: {round(end - start, 2)} seconds")
             print("Total checks: ", self.iteration_count)
 
-preset = {
-    "00":"z", "01":"g", "02":"z", "03":"z",
-    "10":"n", "11":"z", "12":"d", "13":"z", 
-    "20":"z", "21":"i", "22":"z", "23":"o", 
-    "30":"z", "31":"z", "32":"z", "33":"c", 
-}
+"""preset = {
+    "00":"a", "01":"z", "02":"c", "03":"z",
+    "10":"c", "11":"z", "12":"z", "13":"i", 
+    "20":"z", "21":"a", "22":"m", "23":"z", 
+    "30":"z", "31":"e", "32":"d", "33":"z", 
+}"""
 
 # # # # #
 def __main__():
     # Initialize new BoggleBoard
-    board = BoggleBoard(4, preset) 
+    board = BoggleBoard(4) 
     
     print("BOGGLE BOARD:")
     board.print_board()
