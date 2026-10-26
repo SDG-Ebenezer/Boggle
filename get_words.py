@@ -1,22 +1,22 @@
 """
 AUTHOR: Ebenezer Jiang
-Version 1.1.02
+Version 1.3.0
 
 DESCRIPTION: 
     Stores all words in the chosen dictionary to "all_words" list. 
 
 HOW IT WORKS:
-    First, "all_words" is a list. If NLTK is used, then we just import the corpus.words.words() list. 
-    
-    A local dictionary is also attached, which has a word per line. Thus, we read each line and store it as an
-    element in "all_words".
+    First, "all_words" is a list. If NLTK is used, then we just import the corpus.words.words() list. However,
+    important words are missing from NLTK, so a local dictionary is also offered. The local dictionary is 
+    a text file with one word per line. The words are taken from ENABLE (https://www.wordgamedictionary.com/enable/download/enable.txt). 
+    We read each line and store it as an element in "all_words".
 
-    Next, a Trie is created from the list (logic is explained in depth in that section).
+    Next, a Trie is created from the list using maps of maps (logic is explained in depth in that section).
 
     And finally, a function is offered (used in Boggle.py) that checks whether a substring could still potentially 
     become a word one day...
 """
-
+"""
 # Using NLTK built-in dictionary
 import nltk
 
@@ -31,7 +31,7 @@ all_words = []
 with open('./all_words_dictionary.txt', 'r') as file:
     for line in file.readlines():
         all_words.append(line.strip())
-"""
+
 
 ### TRIE ###
 print("[TRIE MAP SET UP] Converting all words to TRIE map")
@@ -44,6 +44,7 @@ for word in all_words: # all_words must be a List
         # For each character in word, see if that character already exists as a key in the current level. 
         # If it doesn't create a new value of {} at that key. Either way, move into this new key to keep nesting maps: "node = ..."
         node = node.setdefault(char, {})
+    node["*"] = True # this is a word
 
 print(f"[TRIE MAP SET UP] Successfully coverted {len(all_words)} words.")
 

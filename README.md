@@ -5,14 +5,8 @@ _Ebenezer Jiang_
 Creates a class for Boggle boards, offering methods to generate, store, and solve the Boggle boards.
 
 ## **HOW IT WORKS:**
-- The BoggleBoard class represents a Boggle board and provides methods to generate the board, print it, and store combinations of letters along paths. 
-The `combinations` dictionary keeps track of all possible paths and their corresponding words. Whenever a valid word is found, it is appended to the `words_found` list. 
-
-- The `iteration_count` counter tracks the number of iterations performed during the search.
-
-- The program uses recursion to explore all possible paths on the Boggle board, storing the combinations and checking for valid words. Valid words are stored in the `words_found` list. 
-
-- A grammatical approach is implemented to optimize memory. Each route is monitered based on whether words in `all_words` start with the current substring. If there is no word that begins with that substring, that means the current path can be terminated and forgotten.
+The BoggleBoard class represents a Boggle board and provides methods to generate the board, print it, and most importantly, find words on the boggle board. 
+This is primarily accomplished in the `check_combinations` method, which recursively attempts to add steps to the current paths. Paths are aborted if they are not found in the dictionary TRIE created in `get_words.py`. This dictionary is the standard dictionary for board games (https://www.wordgamedictionary.com/enable/download/enable.txt). If a path represents a valid word is found, it is stored in the `words_found` list. 
 
 ## **NOTE:**
 - In this program, the term `combination` is used to refer to the substring formed by various steps. For example, in this boggle board:
@@ -32,3 +26,4 @@ position is `"99"`. This is fixable if one updated the code to expend paths to a
 
 
 Created on 10/25/2026 @ 16:34 PM 
+Updated 10/26/2026 @ 17:40 PM

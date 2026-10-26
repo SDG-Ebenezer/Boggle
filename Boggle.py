@@ -1,20 +1,15 @@
 """
 AUTHOR: Ebenezer Jiang
-Version 1.1.02
+Version 1.3.0
 
 DESCRIPTION: 
     Creates a class for Boggle boards, offering methods to generate, store, and solve the Boggle boards.
 
 HOW IT WORKS:
     The BoggleBoard class represents a Boggle board and provides methods to generate the board, print it, 
-    and store combinations of letters along paths. 
-    The "combinations" dictionary keeps track of all possible paths and their corresponding words. Whenever a
-    valid word is found, it is appended to the "words_found" list. 
-    
-    The "iteration_count" counter tracks the number of iterations performed during the search.
+    and check combinations of letters along paths. Whenever a valid word is found, it is appended to the "words_found" list. 
 
-    The program uses recursion to explore all possible paths on the Boggle board, storing the combinations 
-    and checking for valid words. Valid words are stored in the "words_found" list. 
+    The program uses recursion to explore all possible paths on the Boggle board. Valid words are stored in the "words_found" list. 
     
     A grammatical approach is implemented to optimize memory. Each route is monitered based on whether words in 
     "all_words" start with the current substring. If there is no word that begins with that substring, that means 
@@ -48,30 +43,10 @@ all_vowels = ["a", "e", "i", "o", "u"] # lowercase
 # Default size
 BOARD_SIZE = 4 # Maximum Boggle Board Size is 9, otherwise logic fails
 
-# Class representing a Boggle board.
-# @Attributes:
-#     (int) size : The dimension of the board (size x size).
-#     (dict) board : Users have an option to import a pre-set dictionary representing the board, with keys as "row-col" and values as letter characters (e.g., "00", "01").
-#     (dict) combinations : A dictionary storing all possible paths and their corresponding words.
-#     (list) words_found : A list of all valid words found on the board.
-#     (int) iteration_count : The number of iterations performed during search.
-# @Methods:
-#     pick_letters(weight_vowels: bool = True) -> str: Returns a random letter, optionally weighted towards vowels.
-#     generate() -> dict: Generates a random Boggle board with a size of "self.size" x "self.size"
-#     print_board() -> None: Prints the current Boggle board.
-#     store_combinations(path: str) -> None: Stores the combination of letters along the given path.
-class BoggleBoard:
+class BoggleBoard():
     def __init__(self, size = BOARD_SIZE, inputed_board = None):
         self.size = size # boards will have dimensions of "size" x "size"
         self.board = inputed_board if inputed_board else self.generate() # must be a valid board dictionary
-
-        # Combinations will store paths:
-        #      PATHS           TEXT
-        # { "00,01,02,12" : text: "abcd" } # path (list) to a string
-        self.combinations = {}
-        # This will store all the possible routes from 1 square, so future testing is unnecessary 
-        # { "00": ["00,01", "00,10"...] }
-        #self.paths_from_start = {}
 
         # Store all words found on the board
         self.words_found = []
@@ -112,112 +87,53 @@ class BoggleBoard:
                 print(self.board[f"{i}{j}"], end=" ")
             print()
 
-    # Given a starting path, this method will store the substrings in the "self.combinations" dictionary (if it doesn't yet exist).
-    # Then, the program will test possible other paths (by moving to diagonal/adjacent squares), handing off the path to the 
-    # "self.test_new_path" method.
+    # Given a (known to be valid) path, we check if this is a word and attempt to continue paths
     #
     # @param path (str): A comma-separated string representing the path of indices on the board (e.g "00,01,02,12")
+    # @param word (str): The word associated with the path
     # @return None
-    def store_combinations(self, path:str) -> None:
-        self.iteration_count += 1
-        if path == None:
-            print("Invalid path. Abort... NONE TYPE ")
-            return
-        
-        path_as_list = path.split(",") # Path is a string, this is List form
+    def check_combinations(self, path:list, word:str, horz_inc:int = 0, vert_inc:int = 0) -> None:
+        self.iteration_count += 1#
 
-        last_index = path_as_list[-1] # STRING! last added index
-            
-        # Does this path not yet exist in combinations?
-        if path not in self.combinations.keys():
-            # Only one index in the path:
-            if len(path_as_list) == 1:
-                # Add to combinations map as the single letter
-                self.combinations[path] = self.board[path]
-            # More than one index in the path:
-            else:
-                path_of_all_but_last = path[:-3] # literally just: ",".join(path_as_list[:-1])
+        last_index = path[-1] 
+        next_index = f"{int(last_index[0]) + horz_inc}{int(last_index[1]) + vert_inc}"
 
-                previous_combo = self.combinations[path_of_all_but_last] # Substring of path before adding new letter/step
-                last_term = self.board[path_as_list[-1]] # This is the new letter/step
-
-                # Store new combination in "self.combinations"
-                self.combinations[path] = previous_combo + last_term 
-        # If this path already exists in combinations, just forget about it...
-        else:
+        if next_index not in self.board.keys():  
             return
 
-        # DEBUG
-        #print("Path: " + path.ljust(50) + " || Word?: " + self.combinations[path].ljust(16) + " || ITERATIONS: " + str(self.iteration_count))
+        # Passed Level 1 Check, create new word
+        new_path = path + [next_index] # list
+        new_word = word + self.board[next_index] # str
 
         ### PREFIX CHECKER ###
-        # If there is no word in the English dictionary that start with this combination, why keep going?
-        if prefix_can_still_exist(self.combinations[path]) == False:
-            # DEBUG
-            #print("No English word starts with: " + self.combinations[path])
+        if next_index in path:
             return
 
-        #CHECK WORD!
-        potential_word = self.combinations[path]
-        # Check if this word appears in "all_words", which theoretically includes...all words...
-        if potential_word.lower() in all_words:
-            # If it is true, then add this to the "words_found" list
-            self.words_found.append(potential_word) 
-            #print("Word found! " + potential_word.ljust(15) + " | PATH: " + path.ljust(20) + " | ITERATION: #" + str(self.iteration_count))#| PATHS_SEARCHED: " + str(self.combinations.keys()))
-       
-        # After storing everything, now it's time to check the surroundings...
-        # Not really "storing combinations" but hey, go the extra mile...(Matt. 5:41)
+        if prefix_can_still_exist(new_word) == False:
+            return
 
+        if new_word in all_words:
+            # If it is true, then add this to the "words_found" list
+            print("WORD FOUND - " + new_word)
+            self.words_found.append(new_word) 
+
+        self.check_surroundings(new_path, new_word)
+
+    def check_surroundings(self, new_path, new_word):
         # (-1, -1) (0, -1) (+1,-1)
         # (-1,  0) CURRENT (+1, 0)
         # (-1, +1) (0, +1) (+1 +1)
+        self.check_combinations(new_path, new_word,-1, -1)
+        self.check_combinations(new_path, new_word,0, -1)
+        self.check_combinations(new_path, new_word,1, -1)
 
-        self.test_new_path(path_as_list, -1, -1)
-        self.test_new_path(path_as_list, 0, -1)
-        self.test_new_path(path_as_list, 1, -1)
-
-        self.test_new_path(path_as_list, -1, 0)
+        self.check_combinations(new_path, new_word,-1, 0)
         # DON'T TRY YOURSELF! NO +0, +0
-        self.test_new_path(path_as_list, 1, 0)
+        self.check_combinations(new_path, new_word,1, 0)
 
-        self.test_new_path(path_as_list, -1, 1)
-        self.test_new_path(path_as_list, 0, 1)
-        self.test_new_path(path_as_list, 1, 1)       
-
-    # Generates a new path by adding a neighboring cell to the existing path.
-    # @param old_path_list (list): The list-form of the current path (e.g. Path = "01,02,21" -> ["01", "02", "21"])
-    # @param horz_inc (int): The horizontal increment to the last cell (-1, 0, +1)
-    # @param vert_inc (int): The  vertical  increment to the last cell (-1, 0, +1)
-    # @return None
-    def test_new_path(self, old_path_list:list, horz_inc:int, vert_inc:int) -> None:
-        # old_path_list should be like ["00", "10", "11"]
-        last_index = old_path_list[-1] # STRING! last added index
-
-        # Since last_index is stored as a string (e.g. "21"), we must separate into integers to update it:
-        new_row_num = str(int(last_index[0]) + horz_inc) #(+1, +0, or -1) to the last row index
-        new_col_num = str(int(last_index[1]) + vert_inc) #(+1, +0, or -1) to the last column index
-        new_last_index = f"{new_row_num}{new_col_num}"   # This is the new last index
-
-        # Do you like it?
-        # Let's find out...
-
-        # If the last index does not exist on the board; it's out of bounds...forget it...
-        if new_last_index not in self.board.keys():
-            return
-
-        # If this sqaure was already visited, you can't visit again...forget it...
-        if new_last_index in old_path_list:
-            return
-
-        # # #
-        # Create new path [00, 01, 02] + JUST ADDED "03" (new_last_index)
-        test_new_path = ",".join(old_path_list) + "," + new_last_index
-        # If you already tried this path, you can't visit again...
-        if test_new_path in self.combinations.keys():
-            return
-
-        # You passed! This is a valid path worth storing a combination for...
-        self.store_combinations(test_new_path)
+        self.check_combinations(new_path, new_word,-1, 1)
+        self.check_combinations(new_path, new_word,0, 1)
+        self.check_combinations(new_path, new_word,1, 1) 
     
     # Solves the Boggle board by exploring all possible paths and storing valid words.
     # After solving, the method prints out the board as well as all the valid Boggle words (length <= 3).
@@ -229,7 +145,7 @@ class BoggleBoard:
 
         ### Self-explanatory...
         for path in self.board.keys():
-            self.store_combinations(path)
+            self.check_surroundings([path], self.board[path]) 
 
         ### Self-explanatory...
         print("\n\n BOARD: ")
@@ -249,15 +165,22 @@ class BoggleBoard:
             print(f"Runtime: {round(end - start, 2)} seconds")
             print("Total checks: ", self.iteration_count)
 
+preset = {
+    "00":"z", "01":"g", "02":"z", "03":"z",
+    "10":"n", "11":"z", "12":"d", "13":"z", 
+    "20":"z", "21":"i", "22":"z", "23":"o", 
+    "30":"z", "31":"z", "32":"z", "33":"c", 
+}
+
 # # # # #
 def __main__():
     # Initialize new BoggleBoard
-    board = BoggleBoard() 
+    board = BoggleBoard(4, preset) 
     
     print("BOGGLE BOARD:")
     board.print_board()
 
-    input("\n\nPress [ENTER] to compute answers...")
+    #input("\n\nPress [ENTER] to compute answers...")
     board.solve()
 
 if __name__ == "__main__":
