@@ -1,5 +1,6 @@
 """
 AUTHOR: Ebenezer Jiang
+Version 1.0.0
 
 DESCRIPTION: 
     Creates a class for Boggle boards, offering methods to generate, store, and solve the Boggle boards.
@@ -32,6 +33,13 @@ DISCLAIMER:
     2-digit base-10 system (e.g. the position "01" represents the 0th row and the 1st column), thus the max
     position is "99". This is fixable if one updated the code to expend paths to a four-digit position string
     (10th row + 24th column = pos "1024")
+
+TODO:
+    - The current approach is a hard, brute-force method for finding words on the Boggle board. The only 
+      saving grace is that it checks whether the current substring could be the beginning of any valid word, 
+      allowing it to prune unnecessary paths early. But this approach can still be computationally expensive 
+      for larger boards, and has to run through all 280k words in "all_words".
+    - Implement a trie data structure for more efficient word lookup.
 """
 
 import string
@@ -45,16 +53,16 @@ all_vowels = ["a", "e", "i", "o", "u"] # lowercase
 # Download the words corpus from NLTK if it hasn't been downloaded already.
 nltk.download('words')
 # Load the words corpus into a list for quick lookup.
-all_words = nltk.corpus.words.words()
+all_words = nltk.corpus.words.words() # list
 
 
 # Default size
-BOARD_SIZE = 5 # Maximum Boggle Board Size is 9, otherwise logic fails
+BOARD_SIZE = 4 # Maximum Boggle Board Size is 9, otherwise logic fails
 
 # Class representing a Boggle board.
 # @Attributes:
 #     (int) size : The dimension of the board (size x size).
-#     (dict) board : A dictionary representing the board, with keys as "row-col" and values as letter characters (e.g., "00", "01").
+#     (dict) board : Users have an option to import a pre-set dictionary representing the board, with keys as "row-col" and values as letter characters (e.g., "00", "01").
 #     (dict) combinations : A dictionary storing all possible paths and their corresponding words.
 #     (list) words_found : A list of all valid words found on the board.
 #     (int) iteration_count : The number of iterations performed during search.
@@ -240,17 +248,28 @@ class BoggleBoard:
         print(", ".join([i for i in set(self.words_found) if len(i) >= 3])) # Print out all words
         print("\n\n\n")
 
+# preset_board = {
+#     "00": "g", "01": "h", "02": "e", "03": "z", 
+#     "10": "f", "11": "o", "12": "t", "13": "t",
+#     "20": "qu", "21": "a", "22": "l", "23": "u",
+#     "30": "b", "31": "v", "32": "i", "33": "p",
+# }
 
 # # # # #
 def __main__():
-    # Initialize new BoggleBoard with standard size of 5 x 5
-    board = BoggleBoard(5)
+    # Initialize new BoggleBoard
+    board = BoggleBoard(4) 
     
     print("BOGGLE BOARD:")
     board.print_board()
 
     input("\n\nPress [ENTER] to compute answers...")
     board.solve()
+
+    # 5x5 times:
+    # 3391
+    # 5755
+    print("Total iterations:", board.iteration_count)
 
 if __name__ == "__main__":
     __main__()
