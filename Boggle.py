@@ -1,6 +1,6 @@
 """
 AUTHOR: Ebenezer Jiang
-Version 1.0.0
+Version 1.1.02
 
 DESCRIPTION: 
     Creates a class for Boggle boards, offering methods to generate, store, and solve the Boggle boards.
@@ -18,7 +18,8 @@ HOW IT WORKS:
     
     A grammatical approach is implemented to optimize memory. Each route is monitered based on whether words in 
     "all_words" start with the current substring. If there is no word that begins with that substring, that means 
-    the current path can be terminated and forgotten.
+    the current path can be terminated and forgotten. This logic is found in get_words.py, which uses a Trie approach
+    to eliminate impossible substrings/prefixes.
 
     NOTE: In this program, the term "combination" is used to refer to the substring formed by various steps. For
           example, in this boggle board:
@@ -33,57 +34,16 @@ DISCLAIMER:
     2-digit base-10 system (e.g. the position "01" represents the 0th row and the 1st column), thus the max
     position is "99". This is fixable if one updated the code to expend paths to a four-digit position string
     (10th row + 24th column = pos "1024")
-
-TODO:
-    - The current approach is a hard, brute-force method for finding words on the Boggle board. The only 
-      saving grace is that it checks whether the current substring could be the beginning of any valid word, 
-      allowing it to prune unnecessary paths early. But this approach can still be computationally expensive 
-      for larger boards, and has to run through all 280k words in "all_words".
-    - Implement a trie data structure for more efficient word lookup.
-    - Consider using a better dictionary source for word validation. Corpus.word.word contains many archaic words.
 """
 
 import string
 import random
 import time
 
-import nltk
+from get_words import all_words, prefix_can_still_exist
 
 all_letters = list(string.ascii_lowercase)
 all_vowels = ["a", "e", "i", "o", "u"] # lowercase
-
-# Download the words corpus from NLTK if it hasn't been downloaded already.
-nltk.download('words')
-# Load the words corpus into a list for quick lookup.
-all_words = nltk.corpus.words.words() # list
-
-# TRIE SEARCH
-print("[TRIE MAP] Converting all words to TRIE map")
-all_words_prefix_map = {}
-for word in all_words:
-    node = all_words_prefix_map # clone
-    for char in word.lower():
-        node = node.setdefault(char, {})
-    node["*"] = True # Denote if the word is valid
-print(f"[TRIE MAP] Successfully coverted {len(all_words)} words.")
-
-# Check if a substring exists (aka this could potentially be a word)
-# NOTE: This is the logic used in BoogleBoard.store_combinations to determine whether or not to
-#       continue with checking a path or not. If this function returns false, that means given the
-#       current prefix/substring, no matter what future characters you add, there is no possible word 
-#       in the dictionary. Example: "zxxq", if this is the substring/prefix, abort this path...no
-#       English word start with "zxxq"......make sense?
-def prefix_in_dictionary(prefix: str) -> bool:
-    current_level = all_words_prefix_map #
-    for char in prefix.lower(): # lower as a precaution, since the trie map is all lowercase
-        if not char in current_level.keys(): # is this char in this level?
-            return False
-
-        # Passed...so far... >:)
-        current_level = current_level[char]
-        
-    return True
-
 
 # Default size
 BOARD_SIZE = 4 # Maximum Boggle Board Size is 9, otherwise logic fails
@@ -100,11 +60,10 @@ BOARD_SIZE = 4 # Maximum Boggle Board Size is 9, otherwise logic fails
 #     generate() -> dict: Generates a random Boggle board with a size of "self.size" x "self.size"
 #     print_board() -> None: Prints the current Boggle board.
 #     store_combinations(path: str) -> None: Stores the combination of letters along the given path.
-
 class BoggleBoard:
     def __init__(self, size = BOARD_SIZE, inputed_board = None):
         self.size = size # boards will have dimensions of "size" x "size"
-        self.board = inputed_board if inputed_board else self.generate() # must be a {}
+        self.board = inputed_board if inputed_board else self.generate() # must be a valid board dictionary
 
         # Combinations will store paths:
         #      PATHS           TEXT
@@ -193,7 +152,7 @@ class BoggleBoard:
 
         ### PREFIX CHECKER ###
         # If there is no word in the English dictionary that start with this combination, why keep going?
-        if prefix_in_dictionary(self.combinations[path]) == False:
+        if prefix_can_still_exist(self.combinations[path]) == False:
             # DEBUG
             #print("No English word starts with: " + self.combinations[path])
             return
@@ -204,7 +163,7 @@ class BoggleBoard:
         if potential_word.lower() in all_words:
             # If it is true, then add this to the "words_found" list
             self.words_found.append(potential_word) 
-            print("Word found! " + potential_word.ljust(15) + " | PATH: " + path.ljust(20) + " | ITERATION: #" + str(self.iteration_count))#| PATHS_SEARCHED: " + str(self.combinations.keys()))
+            #print("Word found! " + potential_word.ljust(15) + " | PATH: " + path.ljust(20) + " | ITERATION: #" + str(self.iteration_count))#| PATHS_SEARCHED: " + str(self.combinations.keys()))
        
         # After storing everything, now it's time to check the surroundings...
         # Not really "storing combinations" but hey, go the extra mile...(Matt. 5:41)
@@ -278,26 +237,22 @@ class BoggleBoard:
 
         ### Self-explanatory...
         print("\n ALL  VALID  BOGGLE  WORDS (length >= 3): ")
-        print(", ".join([i for i in set(self.words_found) if len(i) >= 3])) # Print out all words
-        print("\n\n\n")
+        # remove duplicates and makes sure word lengths >= 3
+        self.words_found = [i for i in set(self.words_found) if len(i) >= 3]
+        self.words_found.sort() # Sort alphabetically
+        print(", ".join(self.words_found)) # Print out all words
+        print("\n")
 
         # Give runtime
         if give_information:
             end = time.time()
             print(f"Runtime: {round(end - start, 2)} seconds")
-            print("Total iterations: ", self.iteration_count)
-
-# preset_board = {
-#     "00": "g", "01": "h", "02": "e", "03": "z", 
-#     "10": "f", "11": "o", "12": "t", "13": "t",
-#     "20": "qu", "21": "a", "22": "l", "23": "u",
-#     "30": "b", "31": "v", "32": "i", "33": "p",
-# }
+            print("Total checks: ", self.iteration_count)
 
 # # # # #
 def __main__():
     # Initialize new BoggleBoard
-    board = BoggleBoard(4) 
+    board = BoggleBoard() 
     
     print("BOGGLE BOARD:")
     board.print_board()
