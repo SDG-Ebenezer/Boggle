@@ -1,6 +1,6 @@
 """
 AUTHOR: Ebenezer Jiang
-Version 1.3.31
+Version 1.3.33
 
 DESCRIPTION: 
     Stores all words in the chosen dictionary to "all_words" list. 
