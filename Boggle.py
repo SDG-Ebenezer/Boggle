@@ -1,6 +1,6 @@
 """
 AUTHOR: Ebenezer Jiang
-Version 1.3.31
+Version 1.3.32
 
 DESCRIPTION: 
     Creates a class for Boggle boards, offering methods to generate, store, and solve the Boggle boards.
@@ -178,16 +178,16 @@ preset = {
 
 """
 preset2 = {
-    "00":"z", "01":"z", "02":"z", "03":"e",
-    "10":"z", "11":"c", "12":"z", "13":"d", 
-    "20":"z", "21":"z", "22":"o", "23":"z", 
-    "30":"z", "31":"z", "32":"z", "33":"z",
+    "00":"l", "01":"o", "02":"z", "03":"e",
+    "10":"l", "11":"c", "12":"z", "13":"d", 
+    "20":"e", "21":"z", "22":"o", "23":"z", 
+    "30":"h", "31":"z", "32":"z", "33":"z",
 }"""
 
 # # # # #
 def __main__():
     # Initialize new BoggleBoard
-    board = BoggleBoard(4)#, preset2) 
+    board = BoggleBoard(4)#, preset) 
     
     print("BOGGLE BOARD:")
     board.print_board()
