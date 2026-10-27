@@ -1,6 +1,6 @@
 """
 AUTHOR: Ebenezer Jiang
-Version 1.3.2
+Version 1.3.31
 
 DESCRIPTION: 
     Creates a class for Boggle boards, offering methods to generate, store, and solve the Boggle boards.
@@ -35,7 +35,7 @@ import string
 import random
 import time
 
-from get_words import all_words, prefix_can_still_exist
+from get_words import *
 
 all_letters = list(string.ascii_lowercase)
 all_vowels = ["a", "e", "i", "o", "u"] # lowercase
@@ -105,14 +105,16 @@ class BoggleBoard():
         new_path = path + [next_index] # list
         new_word = word + self.board[next_index] # str
 
-        ### PREFIX CHECKER ###
         if next_index in path:
             return
 
-        if prefix_can_still_exist(new_word) == False:
+        ### PREFIX CHECKER ###
+        word_information = check_word(new_word) # returns a dictionary with keys "substring_potential" and "is_word"
+        if word_information["substring_potential"] == False:
             return
 
-        if new_word in all_words:
+        # This checks if the word is a valid word (conditions set in get_words.py)
+        if word_information["is_word"] and boggle_verified(new_word):
             # If it is true, then add this to the "words_found" list
             #print("WORD FOUND - " + new_word)
             self.words_found.append(new_word) 
@@ -152,7 +154,7 @@ class BoggleBoard():
         self.print_board()
 
         ### Self-explanatory...
-        print("\n ALL  VALID  BOGGLE  WORDS (length >= 3): ")
+        print("\nALL  VALID  BOGGLE  WORDS (length >= 3): ")
         # remove duplicates and makes sure word lengths >= 3
         self.words_found = [i for i in set(self.words_found) if len(i) >= 3]
         self.words_found.sort() # Sort alphabetically
@@ -166,24 +168,39 @@ class BoggleBoard():
             print("Longest word: ", max(self.words_found, key=len))
             print("Total words: ", len(self.words_found))
             print("Total checks: ", self.iteration_count)
-
-"""preset = {
+"""
+preset = {
     "00":"s", "01":"e", "02":"r", "03":"g",
     "10":"l", "11":"a", "12":"n", "13":"e", 
     "20":"p", "21":"i", "22":"t", "23":"s", 
     "30":"s", "31":"e", "32":"r", "33":"o",
 }"""
 
+"""
+preset2 = {
+    "00":"z", "01":"z", "02":"z", "03":"e",
+    "10":"z", "11":"c", "12":"z", "13":"d", 
+    "20":"z", "21":"z", "22":"o", "23":"z", 
+    "30":"z", "31":"z", "32":"z", "33":"z",
+}"""
+
 # # # # #
 def __main__():
     # Initialize new BoggleBoard
-    board = BoggleBoard(4)#, preset) 
+    board = BoggleBoard(4)#, preset2) 
     
-    #print("BOGGLE BOARD:")
-    #board.print_board()
+    print("BOGGLE BOARD:")
+    board.print_board()
 
-    #input("\n\nPress [ENTER] to compute answers...")
+    input("\n\nPress [ENTER] to compute answers...")
+    print("Solving Boggle Board...")
     board.solve()
+
+    """
+    # ERROR CHECK
+    for word in board.words_found:
+        if word not in ALL_WORDS:
+            print("OH NO! " + word)"""
 
 if __name__ == "__main__":
     __main__()

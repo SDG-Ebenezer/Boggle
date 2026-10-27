@@ -1,6 +1,6 @@
 """
 AUTHOR: Ebenezer Jiang
-Version 1.3.1
+Version 1.3.31
 
 DESCRIPTION: 
     Stores all words in the chosen dictionary to "all_words" list. 
@@ -11,10 +11,10 @@ HOW IT WORKS:
     a text file with one word per line. The words are taken from ENABLE (https://www.wordgamedictionary.com/enable/download/enable.txt). 
     We read each line and store it as an element in "all_words".
 
-    Next, a Trie is created from the list using maps of maps (logic is explained in depth in that section).
+    A Trie of all possible words is created using maps of maps (logic is explained in depth in that section).
 
-    And finally, a function is offered (used in Boggle.py) that checks whether a substring could still potentially 
-    become a word one day...
+    And finally, a function (check_word) is offered (used in Boggle.py) that checks whether a substring could 
+    still potentially become a word one day AND whether it is a valid Boggle word.
 """
 """
 # Using NLTK built-in dictionary
@@ -27,26 +27,29 @@ all_words = nltk.corpus.words.words() # list
 
 """
 # Using Local dictionary all_words_dictionary.txt
-all_words = []
+ALL_WORDS = []
 with open('./all_words_dictionary.txt', 'r') as file:
     for line in file.readlines():
-        all_words.append(line.strip())
-
+        ALL_WORDS.append(line.strip())
 
 ### TRIE ###
+def convert_to_map_trie(all_words: list[str]) -> None:
+    root = {}
+    for word in all_words: # all_words must be a List
+        # "copy" the main map so we can nest and travel
+        node = root 
+        for char in word.lower():
+            # For each character in word, see if that character already exists as a key in the current level. 
+            # If it doesn't create a new value of {} at that key. Either way, move into this new key to keep nesting maps: "node = ..."
+            node = node.setdefault(char, {})
+        node["*"] = True # this is a word
+    return root
+
+
 print("[TRIE MAP SET UP] Converting all words to TRIE map")
 # This is where all the characters for the word maps will be stored
-all_words_prefix_map = {}
-for word in all_words: # all_words must be a List
-    # "copy" the main map so we can nest and travel
-    node = all_words_prefix_map 
-    for char in word.lower():
-        # For each character in word, see if that character already exists as a key in the current level. 
-        # If it doesn't create a new value of {} at that key. Either way, move into this new key to keep nesting maps: "node = ..."
-        node = node.setdefault(char, {})
-    node["*"] = True # this is a word
-
-print(f"[TRIE MAP SET UP] Successfully coverted {len(all_words)} words.")
+all_words_prefix_map = convert_to_map_trie(ALL_WORDS) # this is a map of maps, where each level is a character in the word. The "*" key indicates that this is a word.
+print(f"[TRIE MAP SET UP] Successfully coverted {len(ALL_WORDS)} words.")
 
 ## AN OVERLY-DETAILED EXPLANATION OF WORD-CHECKING LOGIC:
 # Check if a substring exists (aka this could potentially be a word)
@@ -65,13 +68,37 @@ print(f"[TRIE MAP SET UP] Successfully coverted {len(all_words)} words.")
 #                      \
 # LEVEL 4: {            e  } 
 # To check whether "car" exists, you scan the first level for "c" (does this exist in key?). If this passes, you continue.
-def prefix_can_still_exist(prefix: str) -> bool:
-    current_level = all_words_prefix_map #
-    for char in prefix.lower(): # lower as a precaution, since the trie map is all lowercase
+def check_word(prefix: str, root = all_words_prefix_map) -> dict[str, bool]:
+    current_level = root #
+    for index, char in enumerate(prefix.lower()): # lower as a precaution, since the trie map is all lowercase
         if not char in current_level.keys(): # is this char in this level?
-            return False
+            return {
+                "substring_potential" : False
+            }
 
         # Passed...so far...next level!
         current_level = current_level[char]
+
+        # last term
+        if index == len(prefix) - 1: # if this is the last character in the prefix, check if this is a word
+            if "*" in current_level.keys(): # if this is a word, return True
+                print(f"[WORD CHECKER] {current_level.keys()} is a word")
+                return {
+                    "substring_potential" : True,
+                    "is_word" : True
+                }
+            else: 
+                return {
+                    "substring_potential" : True,
+                    "is_word" : False
+                }
     # Complete! You exist!
-    return True
+
+def boggle_verified(word: str) -> bool:
+    if len(word) >= 3:
+        return True
+    return False
+
+"""a = convert_to_map_trie(["car", "cab"])
+print(a)
+print(check_word("car",a))"""
