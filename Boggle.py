@@ -1,6 +1,6 @@
 """
 AUTHOR: Ebenezer Jiang
-Version 1.3.33
+Version 1.3.34
 
 DESCRIPTION: 
     Creates a class for Boggle boards, offering methods to generate, store, and solve the Boggle boards.

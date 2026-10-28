@@ -1,6 +1,6 @@
 """
 AUTHOR: Ebenezer Jiang
-Version 1.3.33
+Version 1.3.34
 
 DESCRIPTION: 
     Stores all words in the chosen dictionary to "all_words" list. 
@@ -82,7 +82,6 @@ def check_word(prefix: str, root = all_words_prefix_map) -> dict[str, bool]:
         # last term
         if index == len(prefix) - 1: # if this is the last character in the prefix, check if this is a word
             if "*" in current_level.keys(): # if this is a word, return True
-                print(f"[WORD CHECKER] {current_level.keys()} is a word")
                 return {
                     "substring_potential" : True,
                     "is_word" : True
