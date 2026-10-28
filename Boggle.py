@@ -1,6 +1,6 @@
 """
 AUTHOR: Ebenezer Jiang
-Version 1.3.34
+Version 1.3.35
 
 DESCRIPTION: 
     Creates a class for Boggle boards, offering methods to generate, store, and solve the Boggle boards.
@@ -164,27 +164,26 @@ class BoggleBoard():
         # Give runtime
         if give_information:
             end = time.time()
-            print(f"Runtime: {round(end - start, 2)} seconds")
+            print(f"Runtime: {round(end - start, 5)} seconds")
             print("Longest word: ", max(self.words_found, key=len))
             print("Total words: ", len(self.words_found))
             print("Total checks: ", self.iteration_count)
-"""
+
 # Boggle board with a lot of words to test program runtime
 preset = {
     "00":"s", "01":"e", "02":"r", "03":"g",
     "10":"l", "11":"a", "12":"n", "13":"e", 
     "20":"p", "21":"i", "22":"t", "23":"s", 
     "30":"s", "31":"e", "32":"r", "33":"o",
-}"""
+}
 
-"""
 # Boggle board with a only a few words to test program functionality
 preset2 = {
     "00":"z", "01":"z", "02":"c", "03":"z",
     "10":"z", "11":"i", "12":"o", "13":"z", 
     "20":"z", "21":"d", "22":"n", "23":"z", 
     "30":"z", "31":"g", "32":"z", "33":"z",
-}"""
+}
 
 # # # # #
 def __main__():
